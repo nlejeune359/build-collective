@@ -95,7 +95,6 @@ export default {
   padding-bottom: 3px;
   font-size: 1.5rem;
   font-weight: bold;
-  text-align: center;
 }
 
 .card-subtitle {
@@ -103,8 +102,7 @@ export default {
   font-size: 1.2rem;
   font-weight: 500;
   color: rgb(240, 240, 240);
-  white-space: pre;
-  text-align: center;
+  white-space: pre; 
 }
 
 .body {
