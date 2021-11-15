@@ -7,21 +7,40 @@ export default createStore({
     account: {
       address: null,
       balance: 0,
+      type: null,
     },
   },
   mutations: {
-    updateEthereum(state, { address, contract, balance }) {
+    updateEthereum(state, { address, contract, balance, type }) {
       state.account.address = address
       state.account.balance = balance
+      state.account.type = type
       state.contract = contract
     },
   },
   actions: {
-    async ethereumConnect(context) {
+    async ethereumConnectUser(context) {
       const response = await Ethereum.connect()
       if (response) {
         const { address, contract, balance } = response
-        context.commit('updateEthereum', { address, contract, balance })
+        context.commit('updateEthereum', { 
+          address, 
+          contract, 
+          balance,
+          type: "user"
+        })
+      }
+    },
+    async ethereumConnectCompany(context) {
+      const response = await Ethereum.connect()
+      if (response) {
+        const { address, contract, balance } = response
+        context.commit('updateEthereum', { 
+          address, 
+          contract, 
+          balance,
+          type: 'company'
+        })
       }
     },
   },
