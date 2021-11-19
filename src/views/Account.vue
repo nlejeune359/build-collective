@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="home" v-if="!account">
-    <form @submit.prevent="signUp">
+    <form @submit.prevent="signUp(type)">
       <card
         title="Enter your username here"
         subtitle="Type directly in the input and hit enter. All spaces will be converted to _"
@@ -128,10 +128,11 @@ export default defineComponent({
       const { address, contract } = this
       this.account = await contract.methods.user(address).call()
     },
-    async signUp() {
+    async signUp(type: string) {
       const { contract, username } = this
       const name = username.trim().replace(/ /g, '_')
-      await contract.methods.signUp(name).send()
+      if(type == 'user') await contract.methods.signUp(name).send()
+      if(type == 'company') await contract.methods.signUpCompany(name).send()
       await this.updateAccount()
       this.username = ''
     },
