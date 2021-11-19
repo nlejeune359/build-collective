@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 import "./Ownable.sol";
 import "./User.sol";
 import "./Company.sol";
+import "./Project.sol";
 
 contract BuildCollective is Ownable {
 
@@ -18,10 +19,14 @@ contract BuildCollective is Ownable {
   // Events //
   ////////////
 
+  /** Connection */
   event UserSignedUp(address indexed userAddress, User indexed user);
   event CompanySignedUp(address indexed userAddress, Company indexed company);
   event UserSignedOut(address indexed userAddress);
   event CompanySignedOut(address indexed userAddress);
+
+  /** Projects */
+  // event NewProjectCreated(address indexed userAddress, Project indexed project);
 
   /////////////
   // Getters //
@@ -38,6 +43,8 @@ contract BuildCollective is Ownable {
   ///////////////
   // Functions //
   ///////////////
+
+  /** Connection */
 
   function signUpCompany(string memory _name) public returns (Company) {
     require(bytes(_name).length > 0);
@@ -69,10 +76,36 @@ contract BuildCollective is Ownable {
     return true;
   }
 
+  /** Transactions */
+
   function addBalance(uint256 _amount) public returns (bool) {
     require(users[msg.sender].isRegistered());
 
     users[msg.sender].addBalance(_amount);
+    return true;
+  }
+
+  /** Projects */
+
+  function createProject(string memory _name) public returns (bool) {
+    require(users[msg.sender].isRegistered());
+
+    users[msg.sender].addProject(new Project(_name));
+    return true;
+  }
+
+  function removeProject(uint256 _index) public returns (bool) {
+    require(users[msg.sender].isRegistered());
+
+    users[msg.sender].removeProject(_index);
+    return true;
+  }
+
+  function addContributorToProject(uint256 _index, address _contributor) public returns (bool) {
+    require(users[msg.sender].getProject(_index).getOwner() == msg.sender);
+    // require(users[_contributor]);
+
+    users[_contributor].addProject(users[msg.sender].getProject(_index));
     return true;
   }
 }
