@@ -87,6 +87,12 @@ contract BuildCollective is Ownable {
 
   /** Projects */
 
+  function getProjects() public returns (Project[] memory) {
+    require(users[msg.sender].isRegistered());
+
+    return users[msg.sender].getProjects();
+  }
+
   function createProject(string memory _name) public returns (bool) {
     require(users[msg.sender].isRegistered());
 
