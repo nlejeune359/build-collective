@@ -6,8 +6,11 @@
       subtitle="Please connect to use the app."
       :blue="true"
     >
-      <collective-button :transparent="true" @click="connect">
-        Connect
+      <collective-button :transparent="true" @click="connectUser">
+        Connect User
+      </collective-button>
+      <collective-button :transparent="true" @click="connectCompany">
+        Connect Company
       </collective-button>
     </card>
     <card title="You're connected!" subtitle="Hooray" :blue="true" v-else>
@@ -42,8 +45,9 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const address = computed(() => store.state.account.address)
-    const connect = () => store.dispatch('ethereumConnect')
-    return { address, connect }
+    const connectUser = () => store.dispatch('ethereumConnectUser')
+    const connectCompany = () => store.dispatch('ethereumConnectCompany')
+    return { address, connectUser, connectCompany }
   },
   computed: {
     links() {

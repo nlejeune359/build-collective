@@ -49,8 +49,9 @@ export default defineComponent({
     const store = useStore()
     const address = computed(() => store.state.account.address)
     const balance = computed(() => store.state.account.balance)
+    const type = computed(() => store.state.account.type)
     const contract = computed(() => store.state.contract)
-    return { address, contract, balance }
+    return { address, contract, balance, type }
   },
   data() {
     const account = null
@@ -63,9 +64,10 @@ export default defineComponent({
       this.account = await contract.methods.user(address).call()
     },
     async signUp() {
-      const { contract, username } = this
+      const { contract, username, type } = this
       const name = username.trim().replace(/ /g, '_')
-      await contract.methods.signUp(name).send()
+      if (type == 'user') await contract.methods.signUp(name).send()
+      if (type == 'company') await contract.methods.signUpCompany(name).send()
       await this.updateAccount()
       this.username = ''
     },
