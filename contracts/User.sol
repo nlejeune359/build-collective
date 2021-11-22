@@ -2,13 +2,13 @@ pragma solidity >=0.4.22 <0.9.0;
 import "./Project.sol";
 
 contract User {
-    string name;
+    string username;
     uint256 balance;
     Project[] projects;
     bool registered;
 
-    constructor(string memory _name) public {
-        name = _name;
+    constructor(string memory _username) public {
+        username = _username;
         balance = 0;
         registered = true;
     }
@@ -17,8 +17,8 @@ contract User {
     // Getters //
     /////////////
 
-    function getName() external view returns (string memory) {
-        return name;
+    function getUsername() external view returns (string memory) {
+        return username;
     }
 
     function getBalance() external view returns (uint256) {
@@ -41,8 +41,8 @@ contract User {
     // Setters //
     /////////////
 
-    function setName(string memory _name) public {
-        name = _name;
+    function setUsername(string memory _username) public {
+        username = _username;
     }
 
     function setBalance(uint256 _balance) external {

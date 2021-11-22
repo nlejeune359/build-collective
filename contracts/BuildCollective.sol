@@ -46,10 +46,10 @@ contract BuildCollective is Ownable {
 
   /** Connection */
 
-  function signUpCompany(string memory _name) public returns (Company) {
-    require(bytes(_name).length > 0);
+  function signUpCompany(string memory _username) public returns (Company) {
+    require(bytes(_username).length > 0);
     
-    companies[msg.sender] = new Company(_name);
+    companies[msg.sender] = new Company(_username);
     emit CompanySignedUp(msg.sender, companies[msg.sender]);
   }
 
