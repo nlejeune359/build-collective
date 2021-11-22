@@ -2,9 +2,9 @@ pragma solidity >=0.4.22 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 import "./Ownable.sol";
-import "./User.sol";
-import "./Company.sol";
-import "./Project.sol";
+// import "./User.sol";
+// import "./Company.sol";
+// import "./Project.sol";
 
 contract BuildCollective is Ownable {
 
@@ -12,8 +12,41 @@ contract BuildCollective is Ownable {
   // Definitions //
   /////////////////
 
+  struct User {
+    string username;
+    uint256 balance;
+    // Project[] projects;
+    bool registered;
+  }
+
+  struct Company {
+    string username;
+    uint256 balance;
+    // User[] members;
+    // Project[] projects;
+    bool registered;
+  }
+
+  struct Bounty {
+    uint256 reward;
+    bool closed;
+  }
+
+  struct Project {
+    uint id;
+    address owner;
+    string name;
+    uint256 balance;
+    // Bounty[] bounties;
+  }
+
   mapping(address => User) public users;
   mapping(address => Company) public companies;
+  mapping(address => Project[]) public projects;
+  mapping(address => User[]) public members;
+  mapping(uint => Bounty[]) public bounties;
+
+  uint count = 0;
 
   ////////////
   // Events //
@@ -32,11 +65,11 @@ contract BuildCollective is Ownable {
   // Getters //
   /////////////
 
-  function user(address userAddress) public view returns (User) {
+  function user(address userAddress) public view returns (User memory) {
     return users[userAddress];
   }
 
-  function company(address companyAddress) public view returns (Company) {
+  function company(address companyAddress) public view returns (Company memory) {
     return companies[companyAddress];
   }
 
@@ -46,72 +79,77 @@ contract BuildCollective is Ownable {
 
   /** Connection */
 
-  function signUpCompany(string memory _username) public returns (Company) {
+  function signUpCompany(string memory _username) public returns (Company memory) {
     require(bytes(_username).length > 0);
     
-    companies[msg.sender] = new Company(_username);
+    companies[msg.sender] = Company(_username, 0, true);
     emit CompanySignedUp(msg.sender, companies[msg.sender]);
   }
 
-  function signUp(string memory _username) public returns (User) {
+  function signUp(string memory _username) public returns (User memory) {
     require(bytes(_username).length > 0);
 
-    users[msg.sender] = new User(_username);
+    User memory u;
+    u.username = _username;
+    u.balance = 0;
+    u.registered = true;
+
+    users[msg.sender] = u;
     emit UserSignedUp(msg.sender, users[msg.sender]);
   }
 
   function signOut() public returns (bool) {
-    require(users[msg.sender].isRegistered());
+    require(users[msg.sender].registered);
     
-    users[msg.sender].setRegistered(false);
+    users[msg.sender].registered = false;
     emit UserSignedOut(msg.sender);
     return true;
   }
 
-  function signOutCompany() public returns (bool) {
-    require(companies[msg.sender].isRegistered());
+  // function signOutCompany() public returns (bool) {
+  //   require(companies[msg.sender].registered);
     
-    companies[msg.sender].setRegistered(false);
-    emit CompanySignedOut(msg.sender);
-    return true;
-  }
+  //   companies[msg.sender].registered = false;
+  //   emit CompanySignedOut(msg.sender);
+  //   return true;
+  // }
 
   /** Transactions */
 
   function addBalance(uint256 _amount) public returns (bool) {
-    require(users[msg.sender].isRegistered());
+    require(users[msg.sender].registered);
 
-    users[msg.sender].addBalance(_amount);
+    users[msg.sender].balance += _amount;
     return true;
   }
 
   /** Projects */
 
-  function getProjects() public returns (Project[] memory) {
-    require(users[msg.sender].isRegistered());
+  // function getProjects() public returns (Project[] memory) {
+  //   require(users[msg.sender].isRegistered());
 
-    return users[msg.sender].getProjects();
-  }
+  //   return users[msg.sender].getProjects();
+  // }
 
-  function createProject(string memory _name) public returns (bool) {
-    require(users[msg.sender].isRegistered());
+  // function createProject(string memory _name) public returns (bool) {
+  //   require(users[msg.sender].isRegistered());
 
-    users[msg.sender].addProject(new Project(_name));
-    return true;
-  }
+  //   users[msg.sender].addProject(new Project(_name));
+  //   return true;
+  // }
 
-  function removeProject(uint256 _index) public returns (bool) {
-    require(users[msg.sender].isRegistered());
+  // function removeProject(uint256 _index) public returns (bool) {
+  //   require(users[msg.sender].isRegistered());
 
-    users[msg.sender].removeProject(_index);
-    return true;
-  }
+  //   users[msg.sender].removeProject(_index);
+  //   return true;
+  // }
 
-  function addContributorToProject(uint256 _index, address _contributor) public returns (bool) {
-    require(users[msg.sender].getProject(_index).getOwner() == msg.sender);
-    // require(users[_contributor]);
+  // function addContributorToProject(uint256 _index, address _contributor) public returns (bool) {
+  //   require(users[msg.sender].getProject(_index).getOwner() == msg.sender);
+  //   // require(users[_contributor]);
 
-    users[_contributor].addProject(users[msg.sender].getProject(_index));
-    return true;
-  }
+  //   users[_contributor].addProject(users[msg.sender].getProject(_index));
+  //   return true;
+  // }
 }
