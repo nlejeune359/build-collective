@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="home" v-if="!account">
-    <form @submit.prevent="signUp(type)">
+    <form @submit.prevent="signUp">
       <card
         title="Enter your username here"
         subtitle="Type directly in the input and hit enter. All spaces will be converted to _"
@@ -17,7 +17,7 @@
   <div class="home" v-if="account">
     <div class="card-home-wrapper">
       <card
-        :title="`[${type}] ${account.username}`"
+        :title="account.username"
         :subtitle="`${balance} Ξ\t\t${account.balance} Tokens`"
         :gradient="true"
       >
@@ -35,31 +35,6 @@
         </div>
       </card>
     </div>
-
-    <div class="bord" v-if="type == 'company'">
-      <h2>List of issues</h2>
-      <div v-for="issue in dataCompany" :key="issue.id"> 
-        <card :title=issue.title>
-          <div class="explanations">
-            {{ issue.content }}
-            <br>
-            <br><a href="$">{{ issue.contributor }}</a>
-          </div>
-        </card>
-        <spacer :size="24" />
-      </div>
-    </div>
-    <div class="bord" v-else>
-      <h2>Project comtributed</h2>
-      <div v-for="issue in dataUser" :key="issue.id"> 
-        <card :title=issue.company>
-          <div class="explanations">
-            {{ issue.content }}
-          </div>
-        </card>
-        <spacer :size="24" />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -67,72 +42,30 @@
 import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import Card from '@/components/Card.vue'
-import Spacer from '@/components/Spacer.vue'
 
 export default defineComponent({
-  components: { Card, Spacer },
+  components: { Card },
   setup() {
     const store = useStore()
     const address = computed(() => store.state.account.address)
     const balance = computed(() => store.state.account.balance)
-    const type = computed(() => store.state.account.type)
     const contract = computed(() => store.state.contract)
-
-    return { address, contract, balance, type }
+    return { address, contract, balance }
   },
   data() {
     const account = null
     const username = ''
-    const dataCompany = [
-      {
-        id: 0,
-        title: 'Issue 1',
-        content:
-          'Voluptate cillum velit irure laboris elit est elit non adipisicing dolore. Non exercitation dolor consectetur labore voluptate eu veniam duis veniam. Fugiat labore ex eiusmod excepteur et veniam. Ea aliquip duis labore commodo aute minim amet. Excepteur consequat sunt sit est ipsum nostrud magna mollit in duis consectetur amet. Sint id voluptate reprehenderit id quis occaecat commodo excepteur exercitation excepteur elit exercitation.',
-        contributor: 'user@123',
-      },
-      {
-        id: 1,
-        title: 'Issue 2',
-        content:
-          'Excepteur magna irure eiusmod laboris nulla duis ullamco eu ea officia pariatur. Reprehenderit dolore exercitation exercitation dolore. Ullamco anim dolor incididunt cupidatat tempor ipsum proident aute amet laboris amet Lorem pariatur aliqua. Fugiat magna exercitation minim ipsum adipisicing pariatur consequat adipisicing cillum. Aliquip laborum ea sint nulla duis. Non cupidatat esse minim eiusmod cupidatat. Enim qui deserunt incididunt incididunt ullamco voluptate in officia nostrud dolor.',
-        contributor: 'user@456',
-      },
-      {
-        id: 2,
-        title: 'Issue 3',
-        content:
-          'Magna irure culpa commodo nulla excepteur aute Lorem enim exercitation qui amet. Velit duis ad id cillum eiusmod consequat dolore velit ea sunt nisi in. In non pariatur officia laboris. Occaecat pariatur eu velit irure.',
-        contributor: 'user@007',
-      },
-    ]
-
-    const dataUser = [
-      {
-        id: 0,
-        company: "Company 1",
-        content:
-          'Voluptate cillum velit irure laboris elit est elit non adipisicing dolore. Non exercitation dolor consectetur labore voluptate eu veniam duis veniam. Fugiat labore ex eiusmod excepteur et veniam. Ea aliquip duis labore commodo aute minim amet. Excepteur consequat sunt sit est ipsum nostrud magna mollit in duis consectetur amet. Sint id voluptate reprehenderit id quis occaecat commodo excepteur exercitation excepteur elit exercitation.',
-      },
-      {
-        id: 1,
-        title: 'Company 1',
-        content:
-          'Excepteur magna irure eiusmod laboris nulla duis ullamco eu ea officia pariatur. Reprehenderit dolore exercitation exercitation dolore. Ullamco anim dolor incididunt cupidatat tempor ipsum proident aute amet laboris amet Lorem pariatur aliqua. Fugiat magna exercitation minim ipsum adipisicing pariatur consequat adipisicing cillum. Aliquip laborum ea sint nulla duis. Non cupidatat esse minim eiusmod cupidatat. Enim qui deserunt incididunt incididunt ullamco voluptate in officia nostrud dolor.',
-      },
-    ]
-    return { account, username, dataCompany, dataUser }
+    return { account, username }
   },
   methods: {
     async updateAccount() {
       const { address, contract } = this
       this.account = await contract.methods.user(address).call()
     },
-    async signUp(type: string) {
+    async signUp() {
       const { contract, username } = this
       const name = username.trim().replace(/ /g, '_')
-      if(type == 'user') await contract.methods.signUp(name).send()
-      if(type == 'company') await contract.methods.signUpCompany(name).send()
+      await contract.methods.signUp(name).send()
       await this.updateAccount()
       this.username = ''
     },
@@ -151,25 +84,14 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
-.card-home-wrapper {
-  width: 300px;
-  margin-right: 24px;
-}
 .home {
   padding: 24px;
   flex: 1;
   display: flex;
-  flex-direction: row;
-}
-
-.card {
-  color: aliceblue;
-}
-
-.bord {
-  flex: 1;
-  display: flex;
   flex-direction: column;
+  justify-content: center;
+  max-width: 500px;
+  margin: auto;
 }
 
 .explanations {

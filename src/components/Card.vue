@@ -102,7 +102,7 @@ export default {
   font-size: 1.2rem;
   font-weight: 500;
   color: rgb(240, 240, 240);
-  white-space: pre; 
+  white-space: pre;
 }
 
 .body {
