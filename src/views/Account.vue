@@ -18,7 +18,7 @@
     <div class="card-home-wrapper">
       <card
         :title="account.username"
-        :subtitle="`${balance} Ξ\t\t${account.balance} Tokens`"
+        :subtitle="`[${type}] ${balance} Ξ ${account.balance} Tokens`"
         :gradient="true"
       >
         <div class="explanations">
@@ -34,6 +34,24 @@
           an eye on Ganache!
         </div>
       </card>
+      <spacer :size="24" />
+      <form @submit.prevent="addProjet" v-if="type == 'user'">
+        <card title="Ajouter un projet" :gradient="true">
+          <input type="text" class="input-username" v-model="nameProjet" placeholder="Nom du projet" />
+        </card>
+      </form>
+    </div>
+    <div class="bord">
+      <h2>List of issues</h2>
+      <div v-for="issue in account.projects" :key="issue.id"> 
+        <card :title=issue.name subtitle= "Name of project">
+          <div class="explanations">
+              Content of issue
+              <button @click="deleteProject(issue.id)">Delete</button>
+          </div>
+        </card>
+        <spacer :size="24" />
+      </div>
     </div>
   </div>
 </template>
@@ -42,26 +60,40 @@
 import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import Card from '@/components/Card.vue'
+import Spacer from '@/components/Spacer.vue'
 
 export default defineComponent({
-  components: { Card },
+  components: { Card, Spacer },
   setup() {
     const store = useStore()
     const address = computed(() => store.state.account.address)
     const balance = computed(() => store.state.account.balance)
     const type = computed(() => store.state.account.type)
     const contract = computed(() => store.state.contract)
+
     return { address, contract, balance, type }
   },
   data() {
     const account = null
     const username = ''
-    return { account, username }
+    const nameProjet = ''
+    this.updateAccount()
+    return { account, username, nameProjet }
   },
   methods: {
     async updateAccount() {
-      const { address, contract } = this
-      this.account = await contract.methods.user(address).call()
+      const { address, contract, type } = this
+      if (type == 'user') {
+        let account = await contract.methods.user(address).call()
+        const projects = await contract.methods.getProjects().call()
+        account = { ...account, projects }
+        this.account = account
+      }
+
+      if (type == 'company')
+        this.account = await contract.methods.company(address).call()
+
+      console.log(this.account)
     },
     async signUp() {
       const { contract, username, type } = this
@@ -70,6 +102,23 @@ export default defineComponent({
       if (type == 'company') await contract.methods.signUpCompany(name).send()
       await this.updateAccount()
       this.username = ''
+    },
+    async addProjet() {
+      const { contract, type, nameProjet } = this
+      const name = nameProjet.trim().replace(/ /g, '_')
+      if (type == 'user') {
+        await contract.methods.createProject(name).send()
+        await this.updateAccount()
+        this.nameProjet = ''
+      }
+    },
+    async deleteProject(id: string) {
+      const { contract, type } = this
+      if (type == 'user') {
+        console.log('Delete ' + id)
+        console.log(await contract.methods.removeProject(parseInt(id)).call())
+        await this.updateAccount()
+      }
     },
     async addTokens() {
       const { contract } = this
@@ -86,14 +135,16 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
+.card-home-wrapper {
+  width: 400px;
+  margin-right: 24px;
+}
+
 .home {
   padding: 24px;
   flex: 1;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 500px;
-  margin: auto;
+  flex-direction: row;
 }
 
 .explanations {
@@ -124,5 +175,15 @@ export default defineComponent({
   color: white;
   font-family: inherit;
   font-size: 1.3rem;
+}
+
+.card {
+  color: aliceblue;
+}
+
+.bord {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 </style>
