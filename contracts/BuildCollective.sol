@@ -29,6 +29,8 @@ contract BuildCollective is Ownable {
 
   struct Bounty {
     uint id;
+    string nom;
+    string description;
     uint256 reward;
     bool closed;
   }
@@ -185,11 +187,11 @@ contract BuildCollective is Ownable {
     return bounties[_idProject];
   }
 
-  function createBounty(uint _idProject, uint _reward) public returns (Bounty memory) {
+  function createBounty(uint _idProject, string _nom, string _description, uint _reward) public returns (Bounty memory) {
     require(users[msg.sender].registered);
     require(projects[msg.sender][_idProject].owner == msg.sender);
 
-    bounties[_idProject].push(Bounty(countBounty, _reward, false));
+    bounties[_idProject].push(Bounty(countBounty, _nom, _description, _reward, false));
     emit BountyCreated(countBounty, bounties[_idProject][bounties[_idProject].length - 1]);
     countBounty++;
 
