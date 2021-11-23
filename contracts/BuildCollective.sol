@@ -187,7 +187,7 @@ contract BuildCollective is Ownable {
     return bounties[_idProject];
   }
 
-  function createBounty(uint _idProject, string _nom, string _description, uint _reward) public returns (Bounty memory) {
+  function createBounty(uint _idProject, string memory _nom, string memory _description, uint _reward) public returns (Bounty memory) {
     require(users[msg.sender].registered);
     require(projects[msg.sender][_idProject].owner == msg.sender);
 
