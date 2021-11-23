@@ -41,13 +41,15 @@
         </card>
       </form>
     </div>
-    <div class="bord">
-      <h2>List of issues</h2>
-      <div v-for="issue in account.projects" :key="issue.id"> 
-        <card :title=issue.name subtitle= "Name of project">
+    <div class="bord" v-if="type == 'user'">
+      <h2>List of projet</h2>
+      <div v-for="projet in account.projects" :key="projet.id"> 
+        <card :title=projet.name subtitle= "Content of projet">
           <div class="explanations">
-              Content of issue
-              <button @click="deleteProject(issue.id)">Delete</button>
+              <collective-button :transparent="true" @click="this.$router.push({ name: 'Bounties', params: {id: projet.id}})">
+                Go to Bounty
+              </collective-button>
+              <button @click="deleteProject(projet.id)">Delete projet</button>
           </div>
         </card>
         <spacer :size="24" />
@@ -61,9 +63,10 @@ import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import Card from '@/components/Card.vue'
 import Spacer from '@/components/Spacer.vue'
+import CollectiveButton from '@/components/CollectiveButton.vue'
 
 export default defineComponent({
-  components: { Card, Spacer },
+  components: { Card, Spacer, CollectiveButton },
   setup() {
     const store = useStore()
     const address = computed(() => store.state.account.address)
@@ -88,6 +91,7 @@ export default defineComponent({
         const projects = await contract.methods.getProjects().call()
         account = { ...account, projects }
         this.account = account
+        console.log(account)
       }
 
       if (type == 'company')

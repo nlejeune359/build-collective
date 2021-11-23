@@ -13,6 +13,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Account',
     component: () => import('@/views/Account.vue'),
   },
+  {
+    path: '/bounties',
+    name: 'Bounties',
+    props: true,
+    component: () => import('@/views/Bounties.vue'),
+  },
 ]
 
 const router = createRouter({
