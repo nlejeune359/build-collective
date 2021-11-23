@@ -190,10 +190,10 @@ contract BuildCollective is Ownable {
     require(projects[msg.sender][_idProject].owner == msg.sender);
 
     bounties[_idProject].push(Bounty(countBounty, _reward, false));
-    emit BountyCreated(countBounty, bounties[_idProject][bounties[_idProject].length]);
+    emit BountyCreated(countBounty, bounties[_idProject][bounties[_idProject].length - 1]);
     countBounty++;
 
-    return bounties[_idProject][bounties[_idProject].length];
+    return bounties[_idProject][bounties[_idProject].length - 1];
   }
 
   function getBountyIndex(uint _idProject, uint _id) private view returns (uint) {
