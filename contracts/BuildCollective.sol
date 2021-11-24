@@ -158,7 +158,7 @@ contract BuildCollective is Ownable {
     return projects[msg.sender][index];
   }
 
-  function removeProject(uint256 _id) public returns (Project[] memory) {
+  function removeProject(uint256 _id) public returns (Project memory) {
     require(users[msg.sender].registered);
 
     uint index = getProjectIndex(msg.sender, _id);
@@ -166,7 +166,7 @@ contract BuildCollective is Ownable {
     Project memory project = projects[msg.sender][index];
     delete projects[msg.sender][index];
     emit ProjectRemoved(msg.sender, index, project);
-    return projects[msg.sender];
+    return projects[msg.sender][index];
   }
 
   function addContributorToProject(uint256 _id, address _contributor) public returns (bool) {
