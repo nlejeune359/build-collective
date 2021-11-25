@@ -12,11 +12,12 @@
         </form>
         <spacer :size="24" />
         <div v-for="bounty in account.bounties" :key="bounty.id" > 
-            <card :title="`${bounty.cloded ? bounty.nom + ' [close]' : bounty.nom + ' [open]'}`" :subtitle="`Reward : ${bounty.reward}`">
+            <card :title="`${bounty.cloded == true ? bounty.nom + ' [close]' : bounty.nom + ' [open]'}`" :subtitle="`Reward : ${bounty.reward}`">
             <div class="explanations">
                 {{ bounty.description }}
                 <button @click="deleteBounty(bounty.id)">Delete Bounty</button>
                 <button v-if="!bounty.closed" @click="closeBounty(bounty.id)">Close Bounty</button>
+                <div v-else>County complet !</div>
             </div>
             </card>
             <spacer :size="24" />
@@ -56,17 +57,20 @@ export default defineComponent({
       const { contract, type, reward, id_projet, nameBounty, describe } = this
       if (type == 'user') {
         await contract.methods
-          .createBounty(id_projet, nameBounty, describe, reward)
+          .createBounty(Number(id_projet), nameBounty, describe, Number(reward))
           .send()
         await this.updateAccount()
       }
+      this.nameBounty = ''
+      this.describe = ''
+      this.reward = null
     },
     async updateAccount() {
       const { address, contract, type } = this
       if (type == 'user') {
         let account = await contract.methods.user(address).call()
         const bounties = await contract.methods
-          .getBounties(this.id_projet)
+          .getBounties(Number(this.id_projet))
           .call()
         account = { ...account, bounties }
         this.account = account
@@ -78,9 +82,11 @@ export default defineComponent({
     async deleteBounty(id_bounty: string) {
       const { contract, type, id_projet } = this
       if (type == 'user') {
-        console.log('Delete ' + id_bounty)
+        console.log('Projet ' + id_projet + 'Delete ' + id_bounty)
         console.log(
-          await contract.methods.removeBounty(id_projet, id_bounty).call()
+          await contract.methods
+            .removeBounty(Number(id_projet), Number(id_bounty))
+            .call()
         )
         await this.updateAccount()
       }
@@ -90,7 +96,9 @@ export default defineComponent({
       if (type == 'user') {
         console.log('Close ' + id_bounty)
         console.log(
-          await contract.methods.closeBounty(id_projet, id_bounty).call()
+          await contract.methods
+            .closeBounty(Number(id_projet), Number(id_bounty))
+            .send()
         )
         await this.updateAccount()
       }

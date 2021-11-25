@@ -85,19 +85,18 @@ export default defineComponent({
   },
   methods: {
     async updateAccount() {
+      console.log('Call update')
+
       const { address, contract, type } = this
       if (type == 'user') {
         let account = await contract.methods.user(address).call()
         const projects = await contract.methods.getProjects().call()
         account = { ...account, projects }
         this.account = account
-        console.log(account)
       }
 
       if (type == 'company')
         this.account = await contract.methods.company(address).call()
-
-      console.log(this.account)
     },
     async signUp() {
       const { contract, username, type } = this
@@ -119,8 +118,7 @@ export default defineComponent({
     async deleteProject(id: string) {
       const { contract, type } = this
       if (type == 'user') {
-        console.log('Delete ' + id)
-        console.log(await contract.methods.removeProject(parseInt(id)).call())
+        console.log(await contract.methods.removeProject(parseInt(id)).send())
         await this.updateAccount()
       }
     },
