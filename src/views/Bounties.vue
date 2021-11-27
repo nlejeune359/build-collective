@@ -12,12 +12,12 @@
         </form>
         <spacer :size="24" />
         <div v-for="bounty in account.bounties" :key="bounty.id" > 
-            <card :title="`${bounty.cloded == true ? bounty.nom + ' [close]' : bounty.nom + ' [open]'}`" :subtitle="`Reward : ${bounty.reward}`">
+            <card :title=bounty.nom :subtitle="`Reward : ${bounty.reward}`">
             <div class="explanations">
                 {{ bounty.description }}
                 <button @click="deleteBounty(bounty.id)">Delete Bounty</button>
                 <button v-if="!bounty.closed" @click="closeBounty(bounty.id)">Close Bounty</button>
-                <div v-else>County complet !</div>
+                <div v-else>Bounty complet !</div>
             </div>
             </card>
             <spacer :size="24" />
@@ -86,7 +86,7 @@ export default defineComponent({
         console.log(
           await contract.methods
             .removeBounty(Number(id_projet), Number(id_bounty))
-            .call()
+            .send()
         )
         await this.updateAccount()
       }
