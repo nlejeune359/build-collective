@@ -281,7 +281,7 @@ contract BuildCollective is Ownable {
     uint indexProject = getProjectIndex(msg.sender, _idProject);
     uint index = getBountyIndex(_idProject, _id);
 
-    require(projects[msg.sender][index].owner == msg.sender);
+    require(projects[msg.sender][indexProject].owner == msg.sender);
     require(!bounties[_idProject][index].closed);
 
     bounties[_idProject][index].closed = true;
