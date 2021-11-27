@@ -29,6 +29,8 @@ contract BuildCollective is Ownable {
 
   struct Bounty {
     uint id;
+    uint idProject;
+    address owner;
     string nom;
     string description;
     uint256 reward;
@@ -48,6 +50,8 @@ contract BuildCollective is Ownable {
   mapping(address => Project[]) public projects;
   mapping(address => User[]) public members;
   mapping(uint => Bounty[]) public bounties;
+
+  Bounty[] openedBounties;
 
   uint countProject = 0;
   uint countBounty = 0;
@@ -130,6 +134,13 @@ contract BuildCollective is Ownable {
     return true;
   }
 
+  function minusBalance(address _user, uint256 _amount) private returns (bool) {
+    require(users[msg.sender].registered);
+
+    users[_user].balance -= _amount;
+    return true;
+  }
+
   /** Projects */
 
   function getProjectIndex(address _userAddress, uint _id) private view returns (uint) {
@@ -197,6 +208,10 @@ contract BuildCollective is Ownable {
     return bounties[_idProject];
   }
 
+  function getOpenedBounties() public view returns (Bounty[] memory) {
+    return openedBounties;
+  }
+
   function createBounty(uint _idProject, string memory _nom, string memory _description, uint _reward) public returns (Bounty memory) {
     require(users[msg.sender].registered);
 
@@ -204,7 +219,7 @@ contract BuildCollective is Ownable {
 
     require(projects[msg.sender][indexProject].owner == msg.sender);
 
-    bounties[_idProject].push(Bounty(countBounty, _nom, _description, _reward, false));
+    bounties[_idProject].push(Bounty(countBounty, _idProject, msg.sender, _nom, _description, _reward, true));
     emit BountyCreated(countBounty, bounties[_idProject][bounties[_idProject].length - 1]);
     countBounty++;
 
@@ -219,6 +234,15 @@ contract BuildCollective is Ownable {
       }
     }
     revert("Bounty at this index does not exist");
+  }
+
+  function getOpenedBountyIndex(uint _id) private view returns (uint) {
+    for(uint i=0; i < openedBounties.length; i++) {
+      if(openedBounties[i].id == _id) {
+        return i;
+      }
+    }
+    revert("Opened Bounty at this index does not exist");
   }
 
   function removeBounty(uint _idProject, uint _id) public returns (bool) {
@@ -241,6 +265,16 @@ contract BuildCollective is Ownable {
     return true;
   }
 
+  function removeOpenedBounty(uint _id) private {
+    uint indexOpened = getOpenedBountyIndex(_id);
+    delete openedBounties[indexOpened];
+    
+    for(uint i=indexOpened; i < openedBounties.length - 1; i++) {
+      openedBounties[i] = openedBounties[i+1];
+    }
+    openedBounties.length--;
+  }
+
   function closeBounty(uint _idProject, uint _id) public returns (bool) {
     require(users[msg.sender].registered);
 
@@ -251,6 +285,9 @@ contract BuildCollective is Ownable {
     require(!bounties[_idProject][index].closed);
 
     bounties[_idProject][index].closed = true;
+
+    removeOpenedBounty(_id);
+
     return true;
   }
 
@@ -264,6 +301,21 @@ contract BuildCollective is Ownable {
     require(bounties[_idProject][index].closed);
 
     bounties[_idProject][index].closed = false;
+    openedBounties.push(bounties[_idProject][index]);
+    return true;
+  }
+
+  function getRewardOfBounty(uint _id) public returns (bool) {
+    require(users[msg.sender].registered);
+
+    uint indexOpened = getOpenedBountyIndex(_id);
+
+    Bounty memory b = openedBounties[indexOpened];
+
+    addBalance(b.reward);
+    minusBalance(b.owner, b.reward);
+    closeBounty(b.idProject, b.id);
+
     return true;
   }
 }
