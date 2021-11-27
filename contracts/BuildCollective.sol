@@ -165,6 +165,8 @@ contract BuildCollective is Ownable {
 
     Project memory project = projects[msg.sender][index];
     delete projects[msg.sender][index];
+    delete bounties[_id];
+    bounties[_id].length = 0;
 
     for(uint i=index; i < projects[msg.sender].length - 1; i++) {
       projects[msg.sender][i] = projects[msg.sender][i+1];
@@ -178,10 +180,12 @@ contract BuildCollective is Ownable {
   function addContributorToProject(uint256 _id, address _contributor) public returns (bool) {
     require(_id >= 0 && _id < projects[msg.sender].length);
     // require(users[_contributor].amount != 0);
-    require(projects[msg.sender][_id].owner == msg.sender);
-    // require(users[_contributor]);
 
     uint index = getProjectIndex(msg.sender, _id);
+
+    require(projects[msg.sender][index].owner == msg.sender);
+    // require(users[_contributor]);
+
     Project memory p = projects[msg.sender][index];
     projects[_contributor].push(p);
     return true;
@@ -195,7 +199,10 @@ contract BuildCollective is Ownable {
 
   function createBounty(uint _idProject, string memory _nom, string memory _description, uint _reward) public returns (Bounty memory) {
     require(users[msg.sender].registered);
-    require(projects[msg.sender][_idProject].owner == msg.sender);
+
+    uint indexProject = getProjectIndex(msg.sender, _idProject);
+
+    require(projects[msg.sender][indexProject].owner == msg.sender);
 
     bounties[_idProject].push(Bounty(countBounty, _nom, _description, _reward, false));
     emit BountyCreated(countBounty, bounties[_idProject][bounties[_idProject].length - 1]);
@@ -216,9 +223,11 @@ contract BuildCollective is Ownable {
 
   function removeBounty(uint _idProject, uint _id) public returns (bool) {
     require(users[msg.sender].registered);
-    require(projects[msg.sender][_idProject].owner == msg.sender);
 
+    uint indexProject = getProjectIndex(msg.sender, _idProject);
     uint index = getBountyIndex(_idProject, _id);
+
+    require(projects[msg.sender][indexProject].owner == msg.sender);
 
     Bounty memory bounty = bounties[_idProject][index];
     delete bounties[_idProject][index];
@@ -234,19 +243,27 @@ contract BuildCollective is Ownable {
 
   function closeBounty(uint _idProject, uint _id) public returns (bool) {
     require(users[msg.sender].registered);
-    require(projects[msg.sender][_idProject].owner == msg.sender);
-    require(!bounties[_idProject][_id].closed);
 
-    bounties[_idProject][_id].closed = true;
+    uint indexProject = getProjectIndex(msg.sender, _idProject);
+    uint index = getBountyIndex(_idProject, _id);
+
+    require(projects[msg.sender][index].owner == msg.sender);
+    require(!bounties[_idProject][index].closed);
+
+    bounties[_idProject][index].closed = true;
     return true;
   }
 
   function openBounty(uint _idProject, uint _id) public returns (bool) {
     require(users[msg.sender].registered);
-    require(projects[msg.sender][_idProject].owner == msg.sender);
-    require(bounties[_idProject][_id].closed);
+    
+    uint indexProject = getProjectIndex(msg.sender, _idProject);
+    uint index = getBountyIndex(_idProject, _id);
+    
+    require(projects[msg.sender][indexProject].owner == msg.sender);
+    require(bounties[_idProject][index].closed);
 
-    bounties[_idProject][_id].closed = false;
+    bounties[_idProject][index].closed = false;
     return true;
   }
 }
