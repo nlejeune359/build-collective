@@ -219,7 +219,7 @@ contract BuildCollective is Ownable {
 
     require(projects[msg.sender][indexProject].owner == msg.sender);
 
-    bounties[_idProject].push(Bounty(countBounty, _idProject, msg.sender, _nom, _description, _reward, true));
+    bounties[_idProject].push(Bounty(countBounty, _idProject, msg.sender, _nom, _description, _reward, false));
     emit BountyCreated(countBounty, bounties[_idProject][bounties[_idProject].length - 1]);
     countBounty++;
 
