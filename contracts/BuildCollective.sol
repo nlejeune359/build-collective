@@ -255,6 +255,10 @@ contract BuildCollective is Ownable {
 
     Bounty memory bounty = bounties[_idProject][index];
     delete bounties[_idProject][index];
+
+    if(!bounties[_idProject][index].closed) {
+      removeOpenedBounty(_id);
+    }
     
     for(uint i=index; i < bounties[_idProject].length - 1; i++) {
       bounties[_idProject][i] = bounties[_idProject][i+1];
