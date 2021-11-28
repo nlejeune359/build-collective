@@ -176,9 +176,10 @@ contract BuildCollective is Ownable {
 
     Project memory project = projects[msg.sender][index];
     delete projects[msg.sender][index];
-    for(uint i=0; i < bounties[_id].length; i++) {
-      removeBounty(_id, bounties[_id][i].id);
-    }
+    // for(uint i=0; i < bounties[_id].length; i++) {
+    //   removeBounty(_id, bounties[_id][i].id);
+    // }
+    delete bounties[_id];
     bounties[_id].length = 0;
 
     for(uint i=index; i < projects[msg.sender].length - 1; i++) {
