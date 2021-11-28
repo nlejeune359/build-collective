@@ -1,3 +1,7 @@
+# Remarques
+
+Pour publier des bounties, il faut que l'utilisateur est un nombre de tokens supérieur ou égal au reward du bounty publié. Sinon la publication de ce dernier ne pourra se faire.
+
 # Build Collective
 
 Welcome to the DAAR project. The idea will be to implement an OpenCollective competitor
