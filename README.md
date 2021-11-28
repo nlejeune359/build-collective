@@ -2,6 +2,14 @@
 
 Pour publier des bounties, il faut que l'utilisateur est un nombre de tokens supérieur ou égal au reward du bounty publié. Sinon la publication de ce dernier ne pourra se faire.
 
+# Fonctionnalités implémentées
+
+* Création compte utilisateur
+* Création / Suppression Projets
+* Création / Suppression Bounties
+* Ouverture (publication) / Fermeture de Bounties
+* Récupération des récompenses des Bounties (simplifiée)
+
 # Build Collective
 
 Welcome to the DAAR project. The idea will be to implement an OpenCollective competitor
