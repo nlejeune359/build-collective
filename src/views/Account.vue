@@ -42,17 +42,31 @@
       </form>
     </div>
     <div class="bord" v-if="type == 'user'">
-      <h2>List of projet</h2>
-      <div v-for="projet in account.projects" :key="projet.id"> 
-        <card :title=projet.name subtitle= "Content of projet">
-          <div class="explanations">
-              <collective-button :transparent="true" @click="this.$router.push({ name: 'Bounties', params: {id: projet.id}})">
-                Go to Bounty
-              </collective-button>
-              <button @click="deleteProject(projet.id)">Delete projet</button>
-          </div>
-        </card>
-        <spacer :size="24" />
+      <div class="bord-part-1">
+        <h2>List of projet</h2>
+        <div v-for="projet in account.projects" :key="projet.id"> 
+          <card :title=projet.name subtitle= "Content of projet">
+            <div class="explanations">
+                <collective-button :transparent="true" @click="this.$router.push({ name: 'Bounties', params: {id: projet.id}})">
+                  Go to Bounty
+                </collective-button>
+                <button @click="deleteProject(projet.id)">Delete projet</button>
+            </div>
+          </card>
+          <spacer :size="24" />
+        </div>
+      </div>
+      <div class="bord-part-2">
+        <h2>Bounty Hunter</h2>
+        <div v-for="bounty in account.bounties" :key="bounty.id"> 
+          <card :title="`[${bounty.nom}] of ${bounty.owner}`" :subtitle= "`Reward : ${bounty.reward}`">
+            <div class="explanations">
+                {{ bounty.description }}
+                <button @click="getReward(bounty.id)">Get rewards</button>
+            </div>
+          </card>
+          <spacer :size="24" />
+        </div>
       </div>
     </div>
   </div>
@@ -91,8 +105,10 @@ export default defineComponent({
       if (type == 'user') {
         let account = await contract.methods.user(address).call()
         const projects = await contract.methods.getProjects().call()
-        account = { ...account, projects }
+        const bounties = await contract.methods.getOpenedBounties().call()
+        account = { ...account, projects, bounties }
         this.account = account
+        console.log({ bounties })
       }
 
       if (type == 'company')
@@ -127,6 +143,11 @@ export default defineComponent({
       await contract.methods.addBalance(200).send()
       await this.updateAccount()
     },
+    async getReward(id: string) {
+      const { contract } = this
+      await contract.methods.getRewardOfBounty(Number(id)).send()
+      await this.updateAccount()
+    },
   },
   async mounted() {
     const { address, contract } = this
@@ -140,6 +161,15 @@ export default defineComponent({
 .card-home-wrapper {
   width: 400px;
   margin-right: 24px;
+}
+
+.bord-part-1 {
+  width: 50%;
+  margin-right: 24px;
+}
+
+.bord-part-2 {
+  width: 50%;
 }
 
 .home {
@@ -179,13 +209,9 @@ export default defineComponent({
   font-size: 1.3rem;
 }
 
-.card {
-  color: aliceblue;
-}
-
 .bord {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 </style>

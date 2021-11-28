@@ -12,12 +12,12 @@
         </form>
         <spacer :size="24" />
         <div v-for="bounty in account.bounties" :key="bounty.id" > 
-            <card :title=bounty.nom :subtitle="`Reward : ${bounty.reward}`">
+            <card :title=bounty.nom :subtitle="`Reward : ${bounty.reward} \t\t Status : ${bounty.closed ? 'Closed' : 'Published'}`">
             <div class="explanations">
                 {{ bounty.description }}
                 <button @click="deleteBounty(bounty.id)">Delete Bounty</button>
                 <button v-if="!bounty.closed" @click="closeBounty(bounty.id)">Close Bounty</button>
-                <div v-else>Bounty complet !</div>
+                <button v-else @click="publishBounty(bounty.id)">Publish bounty</button>
             </div>
             </card>
             <spacer :size="24" />
@@ -98,6 +98,18 @@ export default defineComponent({
         console.log(
           await contract.methods
             .closeBounty(Number(id_projet), Number(id_bounty))
+            .send()
+        )
+        await this.updateAccount()
+      }
+    },
+    async publishBounty(id_bounty: string) {
+      const { contract, type, id_projet } = this
+      if (type == 'user') {
+        console.log('publish ' + id_bounty)
+        console.log(
+          await contract.methods
+            .openBounty(Number(id_projet), Number(id_bounty))
             .send()
         )
         await this.updateAccount()
